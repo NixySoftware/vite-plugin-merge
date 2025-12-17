@@ -10,15 +10,15 @@ export type Merger =
           merge: (a: string, b: string) => string;
       };
 
-export const overwriteMerger: Merger = {
+export const overwriteMerger = {
     encoding: null,
     merge: (_a, b) => b,
-};
+} satisfies Merger;
 
-export const concatMerger: Merger = {
+export const concatMerger = {
     encoding: 'utf-8',
     merge: (a, b) => a.concat(b),
-};
+} satisfies Merger;
 
 export type JsonMergerOptions = {
     deep?: boolean;
@@ -28,7 +28,7 @@ export type JsonMergerOptions = {
     space?: string | number;
 };
 
-export const jsonMerger = ({ deep = false, replacer, space }: JsonMergerOptions = {}): Merger => {
+export const jsonMerger = ({ deep = false, replacer, space }: JsonMergerOptions = {}) => {
     const merge = deep ? deepmerge : Object.assign;
 
     return {
@@ -36,5 +36,5 @@ export const jsonMerger = ({ deep = false, replacer, space }: JsonMergerOptions 
         merge(a, b) {
             return JSON.stringify(merge(JSON.parse(a), JSON.parse(b)), replacer, space);
         },
-    };
+    } satisfies Merger;
 };
