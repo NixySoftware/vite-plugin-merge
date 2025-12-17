@@ -14,15 +14,16 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsc -b",
+        "build": "rm -rf dist && tsc -b",
         "check:licenses": "license-checker-rseidelsohn --summary --onlyAllow 'Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;CC-BY-3.0;CC0-1.0;ISC;MIT;Python-2.0'",
-        "dev": "tsc -b -w",
+        "dev": "rm -rf dist && tsc -b -w",
         "lint": "eslint .",
         "test:unit": "vitest run --coverage",
         "test:unit:dev": "vitest --ui"
     },
     "dependencies": {
         "deepmerge-ts": "^7.1.5",
+        "sirv": "^3.0.2",
         "tinyglobby": "^0.2.15"
     },
     "devDependencies": {

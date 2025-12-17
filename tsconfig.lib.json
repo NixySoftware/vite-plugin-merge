@@ -3,7 +3,8 @@
     "compilerOptions": {
         "baseUrl": ".",
         "declaration": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "skipLibCheck": true
     },
     "extends": ["./tsconfig.base.json"],
     "include": ["src"]

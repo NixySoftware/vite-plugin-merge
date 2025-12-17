@@ -1,6 +1,6 @@
 import type { Plugin, ResolvedConfig } from 'vite';
 
-import { internalMerge } from './merge.js';
+import { merge } from './merge.js';
 import { type MergePluginOptions } from './plugin.js';
 
 export const build = ({ hook = 'generateBundle', ...options }: MergePluginOptions): Plugin => {
@@ -24,7 +24,7 @@ export const build = ({ hook = 'generateBundle', ...options }: MergePluginOption
             }
             finished = true;
 
-            await internalMerge({
+            await merge({
                 root: config.root,
                 outputRoot: config.build.outDir,
                 ...options,

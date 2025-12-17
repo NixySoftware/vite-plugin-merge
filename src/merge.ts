@@ -4,17 +4,14 @@ import path from 'node:path';
 import { glob } from 'tinyglobby';
 
 import type { Merger } from './mergers.js';
+import type { InternalOptions } from './options.js';
 
-export type InternalMergeOptions = {
-    root: string;
-    outputRoot: string;
-
-    inputs: string[];
-    output?: string;
-    mergers?: Record<string, Merger>;
-};
-
-export const internalMerge = async ({ root, outputRoot, inputs, output, mergers = {} }: InternalMergeOptions) => {
+const resolve = async ({
+    root,
+    outputRoot,
+    inputs,
+    output,
+}: Pick<InternalOptions, 'root' | 'outputRoot' | 'inputs' | 'output'>) => {
     const inputPaths = (
         await glob(inputs, {
             cwd: root,
@@ -27,8 +24,39 @@ export const internalMerge = async ({ root, outputRoot, inputs, output, mergers 
 
     const outputPath = output ? path.resolve(root, outputRoot, output) : path.resolve(root, outputRoot);
 
+    return {
+        inputPaths,
+        outputPath,
+    };
+};
+
+export const merge = async ({ mergers = {}, ...options }: InternalOptions) => {
+    const { inputPaths, outputPath } = await resolve(options);
+
     for (const inputPath of inputPaths) {
+        const process = async (file: string | null) => {
+            const inputFilePath = file ? path.join(inputPath, file) : inputPath;
+            const outputFilePath = file ? path.join(outputPath, file) : outputPath;
+
+            if (await exists(outputFilePath)) {
+                const extension = path.extname(inputFilePath);
+                const merger = mergers[extension];
+
+                if (merger) {
+                    await mergeWithMerger(inputFilePath, outputFilePath, merger);
+
+                    return;
+                }
+            }
+
+            await fs.mkdir(path.dirname(outputFilePath), {
+                recursive: true,
+            });
+            await fs.copyFile(inputFilePath, outputFilePath);
+        };
+
         const stats = await fs.stat(inputPath);
+
         if (stats.isDirectory()) {
             const files = await glob(inputPath, {
                 cwd: inputPath,
@@ -38,27 +66,10 @@ export const internalMerge = async ({ root, outputRoot, inputs, output, mergers 
             });
 
             for (const file of files) {
-                const inputFilePath = path.join(inputPath, file);
-                const outputFilePath = path.join(outputPath, file);
-
-                if (await exists(outputFilePath)) {
-                    const extension = path.extname(inputFilePath);
-                    const merger = mergers[extension];
-
-                    if (merger) {
-                        await mergeWithMerger(inputFilePath, outputFilePath, merger);
-
-                        continue;
-                    }
-                }
-
-                await fs.mkdir(path.dirname(outputFilePath), {
-                    recursive: true,
-                });
-                await fs.copyFile(inputFilePath, outputFilePath);
+                await process(file);
             }
         } else if (stats.isFile()) {
-            // TODO
+            await process(null);
         } else {
             throw new Error(`Path "${inputPath}" is not a file or directory.`);
         }
