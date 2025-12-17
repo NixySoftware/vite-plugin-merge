@@ -1,0 +1,91 @@
+name: Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            bump:
+                description: 'Bump version by semver keyword.'
+                required: true
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
+
+permissions:
+    contents: write
+    id-token: write
+
+jobs:
+    release:
+        name: Release
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Generate GitHub App token
+              id: app-token
+              uses: getsentry/action-github-app-token@v3
+              with:
+                  app_id: ${{ secrets.APP_ID }}
+                  private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 'lts/*'
+                  cache: 'npm'
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Bump version
+              id: version
+              run: echo "VERSION=$(npm version --no-git-tag-version ${{ inputs.bump }})" >> "$GITHUB_OUTPUT"
+
+            - name: Format with Prettier
+              run: npx prettier --write .
+
+            - name: Add changes
+              run: git add .
+
+            - name: Commit
+              id: commit
+              uses: dsanders11/github-app-commit-action@v1
+              with:
+                  message: ${{ steps.version.outputs.VERSION }}
+                  token: ${{ steps.app-token.outputs.token }}
+
+            - name: Reset and pull
+              run: git reset --hard && git pull
+
+            - name: Tag
+              uses: actions/github-script@v5
+              env:
+                  GIT_TAG: ${{ steps.version.outputs.VERSION }}
+                  GIT_SHA: ${{ steps.commit.outputs.sha }}
+              with:
+                  script: |
+                      github.rest.git.createRef({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          ref: `refs/tags/${process.env.GIT_TAG}`,
+                          sha: process.env.GIT_SHA
+                      })
+
+            - name: Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  generate_release_notes: true
+                  make_latest: true
+                  tag_name: ${{ steps.version.outputs.VERSION }}
+                  token: ${{ steps.app-token.outputs.token }}
+
+            - name: Build
+              run: npm run build
+
+            - name: Publish
+              run: npm publish --access public --provenance
