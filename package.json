@@ -14,9 +14,9 @@
         "dist"
     ],
     "scripts": {
-        "build": "rm -rf dist && tsc -b",
+        "build": "rm -rf dist && tsc -p tsconfig.lib.json && tsc -b",
         "check:licenses": "license-checker-rseidelsohn --summary --onlyAllow 'Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;CC-BY-3.0;CC0-1.0;ISC;MIT;Python-2.0'",
-        "dev": "rm -rf dist && tsc -b -w",
+        "dev": "npm run build && tsc -b -w",
         "lint": "eslint .",
         "test:unit": "vitest run --coverage",
         "test:unit:dev": "vitest --ui"
