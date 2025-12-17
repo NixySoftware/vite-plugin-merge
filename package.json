@@ -1,0 +1,45 @@
+{
+    "name": "vite-plugin-merge",
+    "description": "Vite plugin which merges multiple input directories into the output directory.",
+    "version": "0.0.1",
+    "author": "Nixy <info@nixy.software>",
+    "repository": "github:NixySoftware/vite-plugin-merge",
+    "license": "MIT",
+    "type": "module",
+    "exports": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc -b",
+        "check:licenses": "license-checker-rseidelsohn --summary --onlyAllow 'Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;CC-BY-3.0;CC0-1.0;ISC;MIT;Python-2.0'",
+        "dev": "tsc -b -w",
+        "lint": "eslint .",
+        "test:unit": "vitest run --coverage",
+        "test:unit:dev": "vitest --ui"
+    },
+    "dependencies": {
+        "deepmerge-ts": "^7.1.5",
+        "tinyglobby": "^0.2.15"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^20.2.0",
+        "@commitlint/config-conventional": "^20.2.0",
+        "@eslint/js": "^9.39.2",
+        "@trivago/prettier-plugin-sort-imports": "^6.0.0",
+        "@vitest/coverage-v8": "^4.0.16",
+        "@vitest/ui": "^4.0.16",
+        "eslint": "^9.39.2",
+        "eslint-import-resolver-typescript": "^4.4.4",
+        "eslint-plugin-import": "^2.32.0",
+        "license-checker-rseidelsohn": "^4.4.2",
+        "prettier": "^3.7.4",
+        "prettier-plugin-sort-json": "^4.1.1",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.50.0",
+        "vitest": "^4.0.16"
+    }
+}
