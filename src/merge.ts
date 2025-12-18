@@ -1,17 +1,21 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { type FSWatcher, watch } from 'chokidar';
 import { glob } from 'tinyglobby';
+import type { Logger, WebSocketServer } from 'vite';
 
-import type { Merger } from './mergers.js';
-import type { InternalOptions } from './options.js';
+import type { Merger, Mergers } from './mergers.js';
+import { exists } from './util.js';
 
-const resolve = async ({
-    root,
-    outputRoot,
-    inputs,
-    output,
-}: Pick<InternalOptions, 'root' | 'outputRoot' | 'inputs' | 'output'>) => {
+export type ResolveOptions = {
+    root: string;
+    outputRoot: string;
+    inputs: string[];
+    output?: string;
+};
+
+export const resolve = async ({ root, outputRoot, inputs, output }: ResolveOptions) => {
     const inputPaths = (
         await glob(inputs, {
             cwd: root,
@@ -30,33 +34,23 @@ const resolve = async ({
     };
 };
 
-export const merge = async ({ logger, debug, mergers = {}, ...options }: InternalOptions) => {
-    const { inputPaths, outputPath } = await resolve(options);
+export type MergeOptions = {
+    logger: Logger;
+    debug?: boolean;
 
+    inputPaths: string[];
+    outputPath: string;
+    mergers?: Mergers;
+};
+
+export const merge = async ({ logger, debug, inputPaths, outputPath, mergers = {} }: MergeOptions) => {
     if (debug) {
         logger.info(`Merging into "${outputPath}".`);
     }
 
     for (const inputPath of inputPaths) {
         const process = async (file: string | null) => {
-            const inputFilePath = file ? path.join(inputPath, file) : inputPath;
-            const outputFilePath = file ? path.join(outputPath, file) : outputPath;
-
-            if (await exists(outputFilePath)) {
-                const extension = path.extname(inputFilePath);
-                const merger = mergers[extension];
-
-                if (merger) {
-                    await mergeWithMerger(inputFilePath, outputFilePath, merger);
-
-                    return;
-                }
-            }
-
-            await fs.mkdir(path.dirname(outputFilePath), {
-                recursive: true,
-            });
-            await fs.copyFile(inputFilePath, outputFilePath);
+            await copyOrMerge(inputPath, outputPath, file, mergers);
         };
 
         const stats = await fs.stat(inputPath);
@@ -80,17 +74,112 @@ export const merge = async ({ logger, debug, mergers = {}, ...options }: Interna
     }
 };
 
-const exists = async (path: string): Promise<boolean> => {
-    try {
-        await fs.access(path, fs.constants.F_OK);
-        return true;
-    } catch (err) {
-        if (err !== null && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
-            return false;
+export type WatchAndMergeOptions = {
+    logger: Logger;
+    ws: WebSocketServer;
+
+    debug?: boolean;
+    reload?: boolean;
+
+    inputPaths: string[];
+    outputPath: string;
+    mergers?: Mergers;
+};
+
+export const watchAndMerge = ({
+    logger,
+    ws,
+    debug,
+    reload,
+    inputPaths,
+    outputPath,
+    mergers = {},
+}: WatchAndMergeOptions) => {
+    const process = async (file: string) => {
+        await fs.rm(path.resolve(outputPath, file), {
+            force: true,
+        });
+
+        for (const inputPath of inputPaths) {
+            if (!(await exists(path.resolve(inputPath, file)))) {
+                continue;
+            }
+
+            await copyOrMerge(inputPath, outputPath, file, mergers);
         }
 
-        throw err;
+        if (reload) {
+            ws.send({ type: 'full-reload', path: '*' });
+        }
+    };
+
+    const watchers: FSWatcher[] = [];
+
+    for (const inputPath of inputPaths) {
+        const watcher = watch(inputPath, {
+            cwd: inputPath,
+            ignoreInitial: true,
+        })
+            .on('add', (file) => {
+                if (debug) {
+                    logger.info(`Added "${path.resolve(inputPath, file)}".`);
+                }
+
+                void process(file);
+            })
+            .on('change', (file) => {
+                if (debug) {
+                    logger.info(`Changed "${path.resolve(inputPath, file)}".`);
+                }
+
+                void process(file);
+            })
+            .on('unlink', (file) => {
+                if (debug) {
+                    logger.info(`Removed "${path.resolve(inputPath, file)}".`);
+                }
+
+                void process(file);
+            })
+            .on('error', (error) => {
+                logger.error(String(error));
+            });
+
+        if (debug) {
+            logger.info(`Started watcher for "${inputPath}".`);
+        }
+
+        watchers.push(watcher);
     }
+
+    return async () => {
+        await Promise.all(watchers.map((watcher) => watcher.close()));
+
+        if (debug) {
+            logger.info('Closed watchers.');
+        }
+    };
+};
+
+const copyOrMerge = async (inputPath: string, outputPath: string, file: string | null, mergers: Mergers) => {
+    const inputFilePath = file ? path.join(inputPath, file) : inputPath;
+    const outputFilePath = file ? path.join(outputPath, file) : outputPath;
+
+    if (await exists(outputFilePath)) {
+        const extension = path.extname(inputFilePath);
+        const merger = mergers[extension];
+
+        if (merger) {
+            await mergeWithMerger(inputFilePath, outputFilePath, merger);
+
+            return;
+        }
+    }
+
+    await fs.mkdir(path.dirname(outputFilePath), {
+        recursive: true,
+    });
+    await fs.copyFile(inputFilePath, outputFilePath);
 };
 
 const mergeWithMerger = async (inputPath: string, outputhPath: string, merger: Merger) => {

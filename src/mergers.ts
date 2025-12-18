@@ -10,6 +10,8 @@ export type Merger =
           merge: (a: string, b: string) => string;
       };
 
+export type Mergers = Record<string, Merger>;
+
 export const overwriteMerger = {
     encoding: null,
     merge: (_a, b) => b,
@@ -21,10 +23,28 @@ export const concatMerger = {
 } satisfies Merger;
 
 export type JsonMergerOptions = {
+    /**
+     * Whether to perform deep or shallow merging.
+     * - Shallow uses `Object.assign`.
+     * - Deep uses `deepmerge-ts`.
+     *
+     * Defaults to `false`.
+     */
     deep?: boolean;
 
+    /**
+     * Passed to `JSON.stringify`.
+     *
+     * @see {@link JSON.stringify}
+     */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     replacer?: (this: any, key: string, value: any) => any;
+
+    /**
+     * Passed to `JSON.stringify`.
+     *
+     * @see {@link JSON.stringify}
+     */
     space?: string | number;
 };
 

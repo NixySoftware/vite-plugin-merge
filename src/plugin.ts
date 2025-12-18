@@ -1,12 +1,9 @@
-import type { Plugin, Rollup } from 'vite';
+import type { Plugin } from 'vite';
 
-import { build } from './build.js';
-import type { InternalOptions } from './options.js';
-import { serve } from './serve.js';
+import { type BuildOptions, build } from './build.js';
+import { type ServeOptions, serve } from './serve.js';
 
-export type MergePluginOptions = {
-    hook?: keyof Rollup.PluginHooks;
-} & Pick<InternalOptions, 'debug' | 'inputs' | 'output' | 'mergers'>;
+export type MergePluginOptions = BuildOptions & ServeOptions;
 
 export const merge = (options: MergePluginOptions): Plugin[] => {
     return [build(options), serve(options)];

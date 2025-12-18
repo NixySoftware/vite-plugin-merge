@@ -1,9 +1,21 @@
-import type { Plugin, ResolvedConfig } from 'vite';
+import type { Plugin, ResolvedConfig, Rollup } from 'vite';
 
-import { merge } from './merge.js';
-import { type MergePluginOptions } from './plugin.js';
+import { type MergeOptions, type ResolveOptions, merge, resolve } from './merge.js';
 
-export const build = ({ hook = 'generateBundle', ...options }: MergePluginOptions): Plugin => {
+export type BuildOptions = {
+    build?: {
+        hook?: keyof Rollup.PluginHooks;
+    };
+} & Pick<ResolveOptions, 'inputs' | 'output'> &
+    Pick<MergeOptions, 'debug' | 'mergers'>;
+
+export const build = ({
+    build: { hook = 'generateBundle' } = {},
+    debug,
+    inputs,
+    output,
+    mergers,
+}: BuildOptions): Plugin => {
     let config: ResolvedConfig;
     let finished = false;
 
@@ -24,11 +36,21 @@ export const build = ({ hook = 'generateBundle', ...options }: MergePluginOption
             }
             finished = true;
 
-            await merge({
+            const { inputPaths, outputPath } = await resolve({
                 root: config.root,
                 outputRoot: config.build.outDir,
+                inputs,
+                output,
+            });
+
+            await merge({
                 logger: config.logger,
-                ...options,
+
+                debug,
+
+                inputPaths,
+                outputPath,
+                mergers,
             });
         },
     };
