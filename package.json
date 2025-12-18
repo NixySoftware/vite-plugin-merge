@@ -22,6 +22,7 @@
         "test:unit:dev": "vitest --ui"
     },
     "dependencies": {
+        "chokidar": "^5.0.0",
         "deepmerge-ts": "^7.1.5",
         "sirv": "^3.0.2",
         "tinyglobby": "^0.2.15"
