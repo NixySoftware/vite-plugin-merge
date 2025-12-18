@@ -30,8 +30,12 @@ const resolve = async ({
     };
 };
 
-export const merge = async ({ mergers = {}, ...options }: InternalOptions) => {
+export const merge = async ({ logger, debug, mergers = {}, ...options }: InternalOptions) => {
     const { inputPaths, outputPath } = await resolve(options);
+
+    if (debug) {
+        logger.info(`Merging into "${outputPath}".`);
+    }
 
     for (const inputPath of inputPaths) {
         const process = async (file: string | null) => {

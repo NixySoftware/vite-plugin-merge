@@ -27,6 +27,7 @@ export const build = ({ hook = 'generateBundle', ...options }: MergePluginOption
             await merge({
                 root: config.root,
                 outputRoot: config.build.outDir,
+                logger: config.logger,
                 ...options,
             });
         },
