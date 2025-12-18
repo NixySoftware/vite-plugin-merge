@@ -6,7 +6,7 @@ import { serve } from './serve.js';
 
 export type MergePluginOptions = {
     hook?: keyof Rollup.PluginHooks;
-} & Pick<InternalOptions, 'inputs' | 'output' | 'mergers'>;
+} & Pick<InternalOptions, 'debug' | 'inputs' | 'output' | 'mergers'>;
 
 export const merge = (options: MergePluginOptions): Plugin[] => {
     return [build(options), serve(options)];
