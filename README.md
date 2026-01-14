@@ -1,7 +1,7 @@
 # vite-plugin-merge
 
-![NPM Version](https://img.shields.io/npm/v/vite-plugin-merge)
-![GitHub License](https://img.shields.io/github/license/NixySoftware/vite-plugin-merge)
+[![NPM Version](https://img.shields.io/npm/v/vite-plugin-merge)](https://www.npmjs.com/package/vite-plugin-merge)
+[![GitHub License](https://img.shields.io/github/license/NixySoftware/vite-plugin-merge)](https://github.com/NixySoftware/vite-plugin-merge/blob/main/LICENSE.md)
 
 Vite plugin which merges multiple input directories into the output directory.
 
