@@ -1,5 +1,7 @@
 # vite-plugin-merge
 
+![NPM Version](https://img.shields.io/npm/v/vite-plugin-merge)
+
 Vite plugin which merges multiple input directories into the output directory.
 
 Works for both build and serve modes.
