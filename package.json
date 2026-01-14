@@ -5,6 +5,9 @@
     "author": "Nixy <info@nixy.software>",
     "repository": "github:NixySoftware/vite-plugin-merge",
     "license": "MIT",
+    "keywords": [
+        "vite-plugin"
+    ],
     "type": "module",
     "exports": {
         "types": "./dist/index.d.ts",
@@ -20,6 +23,9 @@
         "lint": "eslint .",
         "test:unit": "vitest run --coverage",
         "test:unit:dev": "vitest --ui"
+    },
+    "peerDependencies": {
+        "vite": "^7.0.0"
     },
     "dependencies": {
         "chokidar": "^5.0.0",
