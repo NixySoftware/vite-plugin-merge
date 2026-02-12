@@ -16,7 +16,7 @@ repos:
                 - prettier-plugin-sort-json@^4.1.1
 
     - repo: https://github.com/pre-commit/mirrors-eslint
-      rev: v9.39.1
+      rev: v10.0.0
       hooks:
           - id: eslint
             language: node
