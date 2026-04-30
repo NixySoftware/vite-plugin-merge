@@ -1,0 +1,20 @@
+name: Publish
+
+on:
+    release:
+        types: [published]
+
+permissions:
+    contents: read
+    id-token: write
+    packages: write
+
+jobs:
+    publish:
+        name: Publish
+        uses: NixySoftware/.github/.github/workflows/publish.yml@473618d5365410901e83901c7d7066922a60ef4a # v0.3.1
+        with:
+            enable-rust: false
+            enable-typescript: true
+            typescript-registry-github: false
+            typescript-registry-npm: true
