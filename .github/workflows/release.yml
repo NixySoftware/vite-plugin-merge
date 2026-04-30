@@ -14,78 +14,17 @@ on:
 
 permissions:
     contents: write
-    id-token: write
 
 jobs:
     release:
         name: Release
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Generate GitHub App token
-              id: app-token
-              uses: getsentry/action-github-app-token@v3
-              with:
-                  app_id: ${{ secrets.APP_ID }}
-                  private_key: ${{ secrets.APP_PRIVATE_KEY }}
-
-            - name: Checkout
-              uses: actions/checkout@v6
-
-            - name: Set up Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: 'lts/*'
-                  cache: 'npm'
-                  registry-url: 'https://registry.npmjs.org'
-
-            - name: Install dependencies
-              run: npm ci
-
-            - name: Bump version
-              id: version
-              run: echo "VERSION=$(npm version --no-git-tag-version ${{ inputs.bump }})" >> "$GITHUB_OUTPUT"
-
-            - name: Format with Prettier
-              run: npx prettier --write .
-
-            - name: Add changes
-              run: git add .
-
-            - name: Commit
-              id: commit
-              uses: dsanders11/github-app-commit-action@v2
-              with:
-                  message: ${{ steps.version.outputs.VERSION }}
-                  token: ${{ steps.app-token.outputs.token }}
-
-            - name: Reset and pull
-              run: git reset --hard && git pull
-
-            - name: Tag
-              uses: actions/github-script@v9
-              env:
-                  GIT_TAG: ${{ steps.version.outputs.VERSION }}
-                  GIT_SHA: ${{ steps.commit.outputs.sha }}
-              with:
-                  script: |
-                      github.rest.git.createRef({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          ref: `refs/tags/${process.env.GIT_TAG}`,
-                          sha: process.env.GIT_SHA
-                      })
-
-            - name: Release
-              uses: softprops/action-gh-release@v3
-              with:
-                  generate_release_notes: true
-                  make_latest: true
-                  tag_name: ${{ steps.version.outputs.VERSION }}
-                  token: ${{ steps.app-token.outputs.token }}
-
-            - name: Build
-              run: npm run build
-
-            - name: Publish
-              run: npm publish
+        uses: NixySoftware/.github/.github/workflows/release.yml@473618d5365410901e83901c7d7066922a60ef4a # v0.3.1
+        with:
+            bump: ${{ inputs.bump }}
+            bump-rust: false
+            bump-typescript: true
+            bump-typescript-tool: 'npm'
+            extract-version: 'typescript'
+        secrets:
+            app-client-id: ${{ secrets.APP_ID }}
+            app-private-key: ${{ secrets.APP_PRIVATE_KEY }}
