@@ -45,7 +45,7 @@
         "eslint": "^9.39.2",
         "eslint-import-resolver-typescript": "^4.4.4",
         "eslint-plugin-import": "^2.32.0",
-        "license-checker-rseidelsohn": "^4.4.2",
+        "license-checker-rseidelsohn": "^5.0.0",
         "prettier": "^3.7.4",
         "prettier-plugin-sort-json": "^4.1.1",
         "typescript": "^6.0.0",
