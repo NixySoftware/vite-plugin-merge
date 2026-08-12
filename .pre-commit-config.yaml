@@ -25,7 +25,6 @@ repos:
             additional_dependencies:
                 - eslint@^10.0.0
                 - eslint-import-resolver-typescript@^4.4.4
-                - eslint-plugin-import@^2.32.0
                 - typescript-eslint@^8.50.0
 
     - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook

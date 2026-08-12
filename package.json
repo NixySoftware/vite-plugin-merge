@@ -44,7 +44,6 @@
         "@vitest/ui": "^4.0.16",
         "eslint": "^10.0.0",
         "eslint-import-resolver-typescript": "^4.4.4",
-        "eslint-plugin-import": "^2.32.0",
         "license-checker-rseidelsohn": "^5.0.0",
         "prettier": "^3.7.4",
         "prettier-plugin-sort-json": "^4.1.1",
