@@ -18,7 +18,7 @@
     ],
     "scripts": {
         "build": "rm -rf dist && tsc -p tsconfig.lib.json && tsc -b",
-        "check:licenses": "license-checker-rseidelsohn --summary --onlyAllow 'Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;CC-BY-3.0;CC0-1.0;ISC;MIT;Python-2.0'",
+        "check:licenses": "license-checker-rseidelsohn --summary --onlyAllow 'Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;CC-BY-3.0;CC0-1.0;ISC;MIT;MPL-2.0;Python-2.0'",
         "check:types": "npm run build",
         "dev": "npm run build && tsc -b -w",
         "lint": "eslint .",
@@ -40,6 +40,7 @@
         "@commitlint/config-conventional": "^21.0.0",
         "@eslint/js": "^10.0.0",
         "@trivago/prettier-plugin-sort-imports": "^6.0.0",
+        "@types/node": "^26.6.6",
         "@vitest/coverage-v8": "^5.0.0",
         "@vitest/ui": "^5.0.0",
         "eslint": "^10.0.0",
