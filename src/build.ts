@@ -1,10 +1,10 @@
-import type { Plugin, ResolvedConfig, Rollup } from 'vite';
+import type { Plugin, ResolvedConfig, Rolldown } from 'vite';
 
 import { type MergeOptions, type ResolveOptions, merge, resolve } from './merge.js';
 
 export type BuildOptions = {
     build?: {
-        hook?: keyof Rollup.PluginHooks;
+        hook?: Rolldown.AsyncPluginHooks;
     };
 } & Pick<ResolveOptions, 'inputs' | 'output'> &
     Pick<MergeOptions, 'debug' | 'mergers'>;
