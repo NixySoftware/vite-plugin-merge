@@ -1,5 +1,4 @@
 // @ts-check
-// @ts-expect-error: missing types for `@eslint/js`.
 import eslint from '@eslint/js';
 // import eslintImport from 'eslint-plugin-import';
 import { defineConfig } from 'eslint/config';
@@ -11,7 +10,6 @@ export default defineConfig(
     },
 
     // ESLint
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     eslint.configs.recommended,
     {
         rules: {
